@@ -27,7 +27,8 @@ sankeyNetwork(
   height = NULL,
   width = NULL,
   iterations = 32,
-  sinksRight = TRUE
+  sinksRight = TRUE,
+  linkGradient = FALSE
 )
 }
 \arguments{
