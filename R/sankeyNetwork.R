@@ -72,13 +72,12 @@
 #'
 #' @export
 
-sankeyNetwork <- function (Links, Nodes, Source, Target, Value, NodeID, NodeGroup = NodeID,
-                           LinkGroup = NULL, units = "", colourScale = JS("d3.scaleOrdinal(d3.schemeCategory20);"),
-                           fontSize = 7, fontFamily = NULL, nodeWidth = 15, nodePadding = 10,
-                           margin = NULL, height = NULL, width = NULL, iterations = 32,
-                           sinksRight = TRUE, linkGradient = FALSE)
+sankeyNetwork <- function(Links, Nodes, Source, Target, Value,
+                          NodeID, NodeGroup = NodeID, LinkGroup = NULL, units = "",
+                          colourScale = JS("d3.scaleOrdinal(d3.schemeCategory20);"), fontSize = 7,
+                          fontFamily = NULL, nodeWidth = 15, nodePadding = 10, margin = NULL,
+                          height = NULL, width = NULL, iterations = 32, sinksRight = TRUE, stage_names = NULL)
 {
-
   check_zero(Links[, Source], Links[, Target])
   colourScale <- as.character(colourScale)
 
@@ -125,18 +124,18 @@ sankeyNetwork <- function (Links, Nodes, Source, Target, Value, NodeID, NodeGrou
   options = list(NodeID = NodeID, NodeGroup = NodeGroup, LinkGroup = LinkGroup,
                  colourScale = colourScale, fontSize = fontSize, fontFamily = fontFamily,
                  nodeWidth = nodeWidth, nodePadding = nodePadding, units = units,
-                 margin = margin, iterations = iterations, sinksRight = sinksRight, linkGradient = linkGradient)
+                 margin = margin, iterations = iterations, sinksRight = sinksRight, stage_names = stage_names)
   htmlwidgets::createWidget(name = "sankeyNetwork", x = list(links = LinksDF,
                                                              nodes = NodesDF, options = options), width = width, height = height,
                             htmlwidgets::sizingPolicy(padding = 10, browser.fill = TRUE),
-                            package = "networkD3")
+                            package = "testpackage")
 }
 
 #' @rdname testpackage-shiny
 #' @export
 sankeyNetworkOutput <- function(outputId, width = "100%", height = "500px") {
   shinyWidgetOutput(outputId, "sankeyNetwork", width, height,
-                    package = "networkD3")
+                    package = "testpackage")
 }
 
 #' @rdname testpackage-shiny
@@ -148,4 +147,3 @@ renderSankeyNetwork <- function(expr, env = parent.frame(), quoted = FALSE) {
   }  # force quoted
   shinyRenderWidget(expr, sankeyNetworkOutput, env, quoted = TRUE)
 }
-

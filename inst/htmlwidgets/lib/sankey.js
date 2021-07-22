@@ -109,7 +109,7 @@ d3.sankey = function() {
       // Links that have this node as target.
       node.targetLinks = [];
     });
-    
+
     links.forEach(function(link) {
       var source = link.source,
           target = link.target;
@@ -135,10 +135,12 @@ d3.sankey = function() {
   // nodes with no incoming links are assigned breadth zero, while
   // nodes with no outgoing links are assigned the maximum breadth.
   function computeNodeBreadths() {
+
+
     var remainingNodes = nodes,
         nextNodes,
         x = 0;
-        
+
     remaining = remainingNodes;
 
     // Work from left to right.
@@ -146,21 +148,24 @@ d3.sankey = function() {
     while (remainingNodes.length && x < nodes.length) {
       nextNodes = [];
       remainingNodes.forEach(function(node) {
-        if (node.stage)
-            node.x = node.stage;
-        else
-            node.x = x;
-            
+        if (node.stage){
+          node.x = node.stage;
+        }
+        else{
+          node.x = x;
+
+        }
+
         node.dx = nodeWidth;
-        
+
         node.sourceLinks.forEach(function(link) {
           if (nextNodes.indexOf(link.target) < 0 && !link.cycleBreaker) {
             nextNodes.push(link.target);
           }
         });
-        
+
       });
-      
+
       if (nextNodes.length == remainingNodes.length) {
         // There must be a cycle here. Let's search for a link that breaks it.
         findAndMarkCycleBreaker(nextNodes);
@@ -173,10 +178,9 @@ d3.sankey = function() {
         ++x;
       }
     }
-    
+
     var total_stages = parseInt(nodes[0].max_stage);
     x = total_stages;
-    
     // Optionally move pure sinks always to the right, and scale node breadths
     scaleNodeBreadths((size[0] - nodeWidth) / (x - 1));
   }
@@ -245,14 +249,14 @@ d3.sankey = function() {
       if (!node.sourceLinks.length) {
         node.x = x - 1;
       } else {
-        //move node to second from right 
+        //move node to second from right
         var nodes_to_right = 0;
         node.sourceLinks.forEach(function(n) {
           nodes_to_right = Math.max(nodes_to_right,n.target.sourceLinks.length)
         })
          if (nodes_to_right==0)node.x = x - 2;
       }
-      
+
     });
   }
 
