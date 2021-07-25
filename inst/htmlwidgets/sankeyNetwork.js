@@ -381,7 +381,7 @@ HTMLWidgets.widget({
                 new_y_pos = d.dy;
             }
         }
-      for (j = 0; j < nodes.length; j++){
+      /*for (j = 0; j < nodes.length; j++){
             pickNode = d3.selectAll(".node")._groups[0][j];
             d = nodes[j];
             if (d.name != "Revenue" & d.name != 'Total Revenue' & d.name != 'Net Profit'){
@@ -394,7 +394,7 @@ HTMLWidgets.widget({
               ")"
           );
             }
-        }
+        }*/
 
       for (j = 0; j < nodes.length; j++) {
         pickNode = d3.selectAll(".node")._groups[0][j];
