@@ -42,7 +42,6 @@ HTMLWidgets.widget({
         var sankey = instance.sankey;
         var options = x.options;
         var stage_names = HTMLWidgets.dataframeToD3(x.options.stage_names);
-        console.log(stage_names);
         // convert links and nodes data frames to d3 friendly format
         var links = HTMLWidgets.dataframeToD3(x.links);
         var nodes = HTMLWidgets.dataframeToD3(x.nodes);
@@ -160,7 +159,10 @@ HTMLWidgets.widget({
             .on("mouseout", function(d) {
                 link.filter(function(d1, i) { return d.targetLinks.includes(d1) | d.sourceLinks.includes(d1); })
                 .style("stroke-opacity", opacity_link);
-            });
+            })
+            .call(function () {
+            manualLayout();
+        });
         // note: u2192 is right-arrow
         link.append("title")
             .append("foreignObject")
@@ -194,11 +196,12 @@ HTMLWidgets.widget({
             .attr("transform", null)
             .text(function(d) { return d.name; })
             .style("font-size", options.fontSize + "px")
+            .style('font-weight', 500)
             .style("font-family", options.fontFamily ? options.fontFamily : "inherit")
-            .style("text-shadow", "2px 0px 2px white")
+            .style("text-shadow", "-1px -1px 0 #ffffff, 1px -1px 0 #ffffff, -1px 1px 0 #ffffff, 1px 1px 0 #ffffff")
             .filter(function(d) { return d.x < width / 2 || !options.sinksRight; })
             .each(function(d,i) {
-                if (d.x == 0)
+                if (d.targetLinks.length === 0)
                 {
                     var thisWidth = this.getComputedTextLength()
                     textWidth.push(thisWidth)
@@ -206,15 +209,11 @@ HTMLWidgets.widget({
 
                 // remove them just after displaying them
             })
-            .filter(function(d) { return d.x == 0; })
+            .filter(function(d) { return d.targetLinks.length === 0; })
             .attr("x", -6 - Math.max.apply(Math, textWidth))
             .attr("text-anchor", "start");
 
-        svg.selectAll('g.node')
-            .each(function(d,i) {
-                d3.select(this).attr("x", function(d){console.log(d.x);});
 
-            });
 
         // adjust viewBox to fit the bounds of our tree
         var s = d3.select(svg.node().parentNode);
@@ -255,7 +254,7 @@ HTMLWidgets.widget({
           );
 
     d3.selectAll("g.node")
-        .filter(function (d) {return d.x > 0 & !['Total Costs', 'Total Revenue', 'Net Profit', 'Net Loss'].includes(d.name);})
+        .filter(function (d) {return d.targetLinks.length !== 0 & !['Total Costs', 'Total Revenue', 'Net Profit', 'Net Loss'].includes(d.name);})
         .selectAll("text").remove();
     // definition of stages
     let group_1 = svg.selectAll(".node");
@@ -291,7 +290,7 @@ HTMLWidgets.widget({
             .attr('class', 'stages')
             .attr("transform", null)
             .attr("y", height+x.options.margin['bottom'])
-            .attr("x", nodes_x_coord[stage_names[i]['stage_id']] + options.nodeWidth/4)
+            .attr("x", nodes_x_coord[stage_names[i]['stage_id']])
             .attr("fill", "#000000")
             .attr('cursor', 'pointer')
             .text(stage_names[i]['stage_name'])
@@ -302,7 +301,7 @@ HTMLWidgets.widget({
     }
 
     d3.selectAll('g.node')
-        .filter(function(d) {return d.x == 0 ;})
+        .filter(function(d) {return d.targetLinks.length == 0 & d.name != 'Revenue' ;})
         .append('foreignObject')
         .attr('x', -60 - Math.max.apply(Math, textWidth))
         .attr("y", function(d) { return d.dy/2-8; })
@@ -322,7 +321,7 @@ HTMLWidgets.widget({
         });
 
      d3.selectAll('g.node')
-        .filter(function(d) {return d.x == 0 ;})
+        .filter(function(d) {return d.targetLinks.length == 0 & d.name != 'Revenue' ;})
         .append('foreignObject')
         .attr('x', -30 - Math.max.apply(Math, textWidth))
         .attr("y", function(d) { return d.dy/2-8; })
@@ -372,7 +371,55 @@ HTMLWidgets.widget({
 
     Object.entries(zoom_out_style).forEach(([prop,val]) => d3.selectAll("#zoom-out").style(prop,val))
 
-        function dragmove(d) {
+
+
+    function manualLayout() {
+        for (j = 0; j < nodes.length; j++){
+            pickNode = d3.selectAll(".node")._groups[0][j];
+            d = nodes[j];
+            if (d.name === "Net Profit"){
+                new_y_pos = d.dy;
+            }
+        }
+      for (j = 0; j < nodes.length; j++){
+            pickNode = d3.selectAll(".node")._groups[0][j];
+            d = nodes[j];
+            if (d.name != "Revenue" & d.name != 'Total Revenue' & d.name != 'Net Profit'){
+                 d3.select(pickNode).attr(
+            "transform",
+            "translate(" +
+              (d.x = d.x) +
+              "," +
+              (d.y = height - d.dy- d.y) +
+              ")"
+          );
+            }
+        }
+
+      for (j = 0; j < nodes.length; j++) {
+        pickNode = d3.selectAll(".node")._groups[0][j];
+        d = nodes[j];
+        if (d.name === "Total Costs") {
+          d3.select(pickNode).attr(
+            "transform",
+            "translate(" +
+              (d.x = d.x) +
+              "," +
+              (d.y = new_y_pos) +
+              ")"
+          );
+        }
+      }
+
+      sankey.relayout();
+      link.attr("d", path);
+    }
+
+
+
+    console.log(height)
+
+    function dragmove(d) {
             d3.select(this).attr("transform", "translate(" + d.x + "," +
             (d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))) + ")");
             sankey.relayout();

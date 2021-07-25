@@ -76,7 +76,7 @@ sankeyNetwork <- function(Links, Nodes, Source, Target, Value,
                           NodeID, NodeGroup = NodeID, LinkGroup = NULL, units = "",
                           colourScale = JS("d3.scaleOrdinal(d3.schemeCategory20);"), fontSize = 7,
                           fontFamily = NULL, nodeWidth = 15, nodePadding = 10, margin = NULL,
-                          height = NULL, width = NULL, iterations = 32, sinksRight = TRUE, stage_names = NULL)
+                          height = NULL, width = NULL, iterations = 32, sinksRight = TRUE, stage_names = NULL, zoomable_nodes = NULL)
 {
   check_zero(Links[, Source], Links[, Target])
   colourScale <- as.character(colourScale)
@@ -124,7 +124,7 @@ sankeyNetwork <- function(Links, Nodes, Source, Target, Value,
   options = list(NodeID = NodeID, NodeGroup = NodeGroup, LinkGroup = LinkGroup,
                  colourScale = colourScale, fontSize = fontSize, fontFamily = fontFamily,
                  nodeWidth = nodeWidth, nodePadding = nodePadding, units = units,
-                 margin = margin, iterations = iterations, sinksRight = sinksRight, stage_names = stage_names)
+                 margin = margin, iterations = iterations, sinksRight = sinksRight, stage_names = stage_names, zoomable_nodes)
   htmlwidgets::createWidget(name = "sankeyNetwork", x = list(links = LinksDF,
                                                              nodes = NodesDF, options = options), width = width, height = height,
                             htmlwidgets::sizingPolicy(padding = 10, browser.fill = TRUE),
